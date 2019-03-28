@@ -41,7 +41,7 @@ import static org.sonar.java.resolve.Symbols.lombokValType;
 @Rule(key = "S2159")
 public class SillyEqualsCheck extends AbstractMethodDetection {
 
-  private static final BiPredicate<Type, Type> bothTypesAreNotInferred = (type1, type2) ->
+  private static final BiPredicate<Type, Type> ignoreTypeRelationCheck = (type1, type2) ->
           Stream.of(type1, type2).map(Type::fullyQualifiedName).noneMatch(lombokValType::is);
 
   private static final String JAVA_LANG_OBJECT = "java.lang.Object";
@@ -115,7 +115,7 @@ public class SillyEqualsCheck extends AbstractMethodDetection {
   }
 
   private static boolean areNotRelated(Type type1, Type type2) {
-    return bothTypesAreNotInferred.test(type1, type2) && !type1.isSubtypeOf(type2) && !type2.isSubtypeOf(type1);
+    return ignoreTypeRelationCheck.test(type1, type2) && !type1.isSubtypeOf(type2) && !type2.isSubtypeOf(type1);
   }
 
 }

@@ -31,7 +31,10 @@ import org.sonar.java.checks.methods.AbstractMethodDetection;
 import org.sonar.java.matcher.MethodMatcher;
 import org.sonar.java.matcher.TypeCriteria;
 import org.sonar.java.model.ExpressionUtils;
-import org.sonar.java.resolve.*;
+import org.sonar.java.resolve.JavaSymbol;
+import org.sonar.java.resolve.JavaType;
+import org.sonar.java.resolve.ParametrizedTypeJavaType;
+import org.sonar.java.resolve.TypeVariableJavaType;
 import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.semantic.Type;
 import org.sonar.plugins.java.api.tree.ExpressionTree;
@@ -45,7 +48,7 @@ import static org.sonar.java.resolve.Symbols.lombokValType;
 @Rule(key = "S2175")
 public class CollectionInappropriateCallsCheck extends AbstractMethodDetection {
 
-  private static final Predicate<Type> isInferredType = type ->
+  private static final Predicate<Type> ignoreTypeCompatibleCheck = type ->
           lombokValType.is(type.fullyQualifiedName());
 
   @Override
@@ -118,7 +121,7 @@ public class CollectionInappropriateCallsCheck extends AbstractMethodDetection {
   }
 
   private static boolean isArgumentCompatible(Type argumentType, Type collectionParameterType) {
-    return isInferredType.test(argumentType)
+    return ignoreTypeCompatibleCheck.test(argumentType)
       || isSubtypeOf(argumentType, collectionParameterType)
       || isSubtypeOf(collectionParameterType, argumentType)
       || autoboxing(argumentType, collectionParameterType);

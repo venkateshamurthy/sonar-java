@@ -95,6 +95,10 @@ public class MyClass {
     object.equals();
     object.hashCode();
 
+    lombok.val x = "valString";
+    String y = "valString";
+    boolean forward = x.equals(y); // Compliant
+    boolean backward = y.equals(x); // Compliant
   }
 
   public <T> void parameterizedMethod1(T o) {
