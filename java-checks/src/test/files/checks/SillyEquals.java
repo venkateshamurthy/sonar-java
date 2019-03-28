@@ -94,6 +94,7 @@ public class MyClass {
     // Compliant
     object.equals();
     object.hashCode();
+
   }
 
   public <T> void parameterizedMethod1(T o) {

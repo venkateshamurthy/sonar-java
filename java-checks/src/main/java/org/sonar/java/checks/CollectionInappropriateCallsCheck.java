@@ -24,16 +24,14 @@ import com.google.common.collect.Iterables;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 import javax.annotation.Nullable;
 import org.sonar.check.Rule;
 import org.sonar.java.checks.methods.AbstractMethodDetection;
 import org.sonar.java.matcher.MethodMatcher;
 import org.sonar.java.matcher.TypeCriteria;
 import org.sonar.java.model.ExpressionUtils;
-import org.sonar.java.resolve.JavaSymbol;
-import org.sonar.java.resolve.JavaType;
-import org.sonar.java.resolve.ParametrizedTypeJavaType;
-import org.sonar.java.resolve.TypeVariableJavaType;
+import org.sonar.java.resolve.*;
 import org.sonar.plugins.java.api.semantic.Symbol;
 import org.sonar.plugins.java.api.semantic.Type;
 import org.sonar.plugins.java.api.tree.ExpressionTree;
@@ -42,8 +40,13 @@ import org.sonar.plugins.java.api.tree.MethodInvocationTree;
 import org.sonar.plugins.java.api.tree.Tree;
 import org.sonar.plugins.java.api.tree.Tree.Kind;
 
+import static org.sonar.java.resolve.Symbols.lombokValType;
+
 @Rule(key = "S2175")
 public class CollectionInappropriateCallsCheck extends AbstractMethodDetection {
+
+  private static final Predicate<Type> isInferredType = type ->
+          lombokValType.is(type.fullyQualifiedName());
 
   @Override
   protected List<MethodMatcher> getMethodInvocationMatchers() {
@@ -115,7 +118,8 @@ public class CollectionInappropriateCallsCheck extends AbstractMethodDetection {
   }
 
   private static boolean isArgumentCompatible(Type argumentType, Type collectionParameterType) {
-    return isSubtypeOf(argumentType, collectionParameterType)
+    return isInferredType.test(argumentType)
+      || isSubtypeOf(argumentType, collectionParameterType)
       || isSubtypeOf(collectionParameterType, argumentType)
       || autoboxing(argumentType, collectionParameterType);
   }

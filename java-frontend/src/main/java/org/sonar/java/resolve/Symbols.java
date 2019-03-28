@@ -42,6 +42,12 @@ public class Symbols {
   final JavaSymbol.TypeJavaSymbol predefClass;
 
   /**
+   * Type and symbol for lombok.val
+   */
+  public static final ClassJavaType lombokValType;
+  public static final JavaSymbol.TypeJavaSymbol lombokValSymbol;
+
+  /**
    * Type, which can't be modelled for the moment.
    */
   public static final UnknownType unknownType;
@@ -139,6 +145,11 @@ public class Symbols {
         return true;
       }
     };
+
+    // Lombok related symbols.
+    lombokValSymbol = new JavaSymbol.TypeJavaSymbol(Flags.PUBLIC, "val",
+            new JavaSymbol.PackageJavaSymbol("lombok", null));
+    lombokValType = new ClassJavaType(lombokValSymbol);
   }
 
   public Symbols(BytecodeCompleter bytecodeCompleter) {

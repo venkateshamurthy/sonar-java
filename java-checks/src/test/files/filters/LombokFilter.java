@@ -275,6 +275,9 @@ class PrivateFieldOnlyUsedLocally {
     public void bar(int y){
       if (foo == 0) {
         // ...
+        lombok.val x="Hello World";
+        String y = "Hello World";
+        boolean z = x.equals(y); // NoIssue
       }
     }
   }

@@ -22,6 +22,8 @@ package org.sonar.java.checks;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 import java.util.List;
+import java.util.function.BiPredicate;
+import java.util.stream.Stream;
 import org.sonar.check.Rule;
 import org.sonar.java.checks.methods.AbstractMethodDetection;
 import org.sonar.java.matcher.MethodMatcher;
@@ -34,8 +36,13 @@ import org.sonar.plugins.java.api.tree.MemberSelectExpressionTree;
 import org.sonar.plugins.java.api.tree.MethodInvocationTree;
 import org.sonar.plugins.java.api.tree.Tree;
 
+import static org.sonar.java.resolve.Symbols.lombokValType;
+
 @Rule(key = "S2159")
 public class SillyEqualsCheck extends AbstractMethodDetection {
+
+  private static final BiPredicate<Type, Type> areTypesNotRelatedOtherwise = (type1, type2) ->
+          Stream.of(type1, type2).map(Type::fullyQualifiedName).noneMatch(lombokValType::is);
 
   private static final String JAVA_LANG_OBJECT = "java.lang.Object";
 
@@ -108,7 +115,7 @@ public class SillyEqualsCheck extends AbstractMethodDetection {
   }
 
   private static boolean areNotRelated(Type type1, Type type2) {
-    return !type1.isSubtypeOf(type2) && !type2.isSubtypeOf(type1);
+    return areTypesNotRelatedOtherwise.test(type1, type2) && !type1.isSubtypeOf(type2) && !type2.isSubtypeOf(type1);
   }
 
 }

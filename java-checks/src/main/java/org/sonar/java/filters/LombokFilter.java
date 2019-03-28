@@ -26,10 +26,12 @@ import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.java.checks.AtLeastOneConstructorCheck;
+import org.sonar.java.checks.CollectionInappropriateCallsCheck;
 import org.sonar.java.checks.ConstantsShouldBeStaticFinalCheck;
 import org.sonar.java.checks.EqualsNotOverriddenInSubclassCheck;
 import org.sonar.java.checks.EqualsNotOverridenWithCompareToCheck;
 import org.sonar.java.checks.PrivateFieldUsedLocallyCheck;
+import org.sonar.java.checks.SillyEqualsCheck;
 import org.sonar.java.checks.UtilityClassWithPublicConstructorCheck;
 import org.sonar.java.checks.naming.BadFieldNameCheck;
 import org.sonar.java.checks.unused.UnusedPrivateFieldCheck;
@@ -39,6 +41,10 @@ import org.sonar.plugins.java.api.tree.ClassTree;
 import org.sonar.plugins.java.api.tree.IdentifierTree;
 import org.sonar.plugins.java.api.tree.MemberSelectExpressionTree;
 import org.sonar.plugins.java.api.tree.Tree;
+import org.sonar.plugins.java.api.tree.VariableTree;
+
+import static java.util.Arrays.asList;
+import static org.sonar.java.resolve.Symbols.lombokValType;
 
 public class LombokFilter extends BaseTreeVisitorIssueFilter {
 
@@ -50,6 +56,8 @@ public class LombokFilter extends BaseTreeVisitorIssueFilter {
     UtilityClassWithPublicConstructorCheck.class,
     AtLeastOneConstructorCheck.class,
     BadFieldNameCheck.class,
+    SillyEqualsCheck.class,
+    CollectionInappropriateCallsCheck.class,
     ConstantsShouldBeStaticFinalCheck.class);
 
   private static final List<String> GENERATE_UNUSED_FIELD_RELATED_METHODS = ImmutableList.<String>builder()
@@ -81,6 +89,16 @@ public class LombokFilter extends BaseTreeVisitorIssueFilter {
   @Override
   public Set<Class<? extends JavaCheck>> filteredRules() {
     return FILTERED_RULES;
+  }
+
+  @Override
+  public void visitVariable(VariableTree tree) {
+    boolean isLombokVal = lombokValType.is(tree.type().symbolType().fullyQualifiedName());
+    if (isLombokVal) {
+      excludeLines(tree, asList(SillyEqualsCheck.class, CollectionInappropriateCallsCheck.class));
+    } else {
+      super.visitVariable(tree);
+    }
   }
 
   @Override

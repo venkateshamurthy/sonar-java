@@ -43,6 +43,10 @@ class A {
     mySetList.contains(unknownMethod()); // Compliant
 
     myUnknownCollection.stream().filter(s -> myASet.contains(s.toString())).collect(Collectors.toSet()); // Compliant
+
+    lombok.val myValString = "valString";
+    myList.add(myValString); // Compliant
+    myList.contains(myValString); // Compliant
   }
 
   private static Integer returnOne() {
